@@ -12,6 +12,9 @@ class ControllerBase
   def initialize(req, res, route_params = {})
     @req = req
     @res = res
+    
+    @already_built_response = false
+    @params = Params.new(req, route_params)
   end
 
   # populate the response with content
@@ -19,9 +22,12 @@ class ControllerBase
   # later raise an error if the developer tries to double render
   def render_content(content, type)
     raise "already built" if already_built_response?
+    
     @res.body = content
     @res["Content-Type"] = type
     @res.status = 200
+    session.store_session(@res)
+    
     @already_built_response = true
   end
 
@@ -55,8 +61,6 @@ class ControllerBase
   # use this with the router to call action_name (:index, :show, :create...)
   def invoke_action(name)
     self.send(name)
-    unless @already_built_response
-      render name.to_sym
-    end
+    render(name) unless already_built_reponse?
   end
 end

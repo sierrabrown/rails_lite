@@ -18,7 +18,6 @@ class Params
     if req.body
       @params.merge!(parse_www_encoded_form(req.body))
     end
-    
     @params.merge!(route_params)
   end
 
@@ -33,6 +32,7 @@ class Params
 
   def require(key)
     raise Params::AttributeNotFoundError.new unless @params.keys.include?(key)
+    @params[key]
   end
 
   def permitted?(key)
@@ -40,6 +40,7 @@ class Params
   end
 
   def to_s
+    @params.to_json.to_s
   end
 
   class AttributeNotFoundError < ArgumentError; end;
